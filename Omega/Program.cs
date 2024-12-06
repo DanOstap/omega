@@ -16,6 +16,7 @@ app.MapGet("/start-connection", async (string url) =>
     var serverUrl = new Uri(url);
     try
     {
+        
         await ws.ConnectAsync(serverUrl, CancellationToken.None);
         Console.WriteLine("Connection complited");
 
