@@ -11,7 +11,6 @@ public class WebSocketsService: BackgroundService
     {
         this._configuration = configuration;
     }
-    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Uri _serverUri = new Uri(_configuration["Url"]);
