@@ -17,16 +17,22 @@ public class WebSocketsService: BackgroundService
         using var webSocket = new ClientWebSocket();
         try
         {
+            
+            // request from client 
             await webSocket.ConnectAsync(_serverUri, stoppingToken);
             Console.WriteLine("WebSocket client connected.");
+            var serverMessage = "Server is running... ";
+            var buffer = Encoding.UTF8.GetBytes(serverMessage);
+            await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true,
+                CancellationToken.None);
+            Console.WriteLine("Was sending to server: " + serverMessage);
+            
+            // request to client
+            var bufferClient = new byte[1024 * 4];
+            var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(bufferClient), CancellationToken.None);
+            var responseServerMessage = Encoding.UTF8.GetString(bufferClient, 0, result.Count);
+            Console.WriteLine($"Received from server: {responseServerMessage}");
 
-            var buffer = new byte[1024 * 4];
-            while (webSocket.State == WebSocketState.Open && !stoppingToken.IsCancellationRequested)
-            {
-                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), stoppingToken);
-                var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                Console.WriteLine($"Received: {message}");
-            }
         }
         catch (Exception e)
         {
